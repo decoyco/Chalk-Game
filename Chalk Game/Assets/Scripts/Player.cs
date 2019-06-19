@@ -65,13 +65,16 @@ public class Player : Entity
         float jump = 0;
         if(Input.GetButtonDown("Jump"))
         {
+            
             if (wallCling() != 0 && !isGrounded)
             {
+                velocity = new Vector2(0, 0);
                 wallJump = wallJumpForce;
                 jump = jumpForce;
             }
             else if(isGrounded)
             {
+                velocity = new Vector2(velocity.x, 0);
                 jump = jumpForce;
             }
 
