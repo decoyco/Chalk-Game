@@ -12,11 +12,13 @@ public class Player : Entity
         set { rb.velocity = value; }
     }
 
+    public BoxCollider2D groundBox;
     private bool isGrounded
     {
         get
         {
-            if (Physics2D.BoxCast(transform.position + Vector3.down * .1f, new Vector2(1,1), 0, Vector2.down, spr.rect.height / 2, mask) && velocity.y == 0)
+            //if (Physics2D.BoxCast(transform.position, new Vector2(spr.rect.width - .5f ,1), 0, Vector2.down, spr.rect.height / 2, mask) && velocity.y == 0)
+            if (groundBox.IsTouchingLayers(mask))
                 return true;
             else
                 return false;
@@ -25,14 +27,14 @@ public class Player : Entity
 
     //Checks if player is next to wall and running against wall.
     //Returns 1 if clinging to right, -1 if left, 0 if not at all
+    public BoxCollider2D leftWallBox;
+    public BoxCollider2D rightWallBox;
     private int wallCling()
     {
         
-        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right, 1f, mask);
-        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector2.left, 1f, mask);
-        if (hitRight.collider != null && Input.GetAxisRaw("Horizontal") > 0.75f)
+        if (rightWallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") > 0.75f)
             return -1;
-        else if (hitLeft.collider != null && Input.GetAxisRaw("Horizontal") < -0.75f)
+        else if (leftWallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") < -0.75f)
             return 1;
         else return 0;
     }
