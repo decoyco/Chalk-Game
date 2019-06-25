@@ -33,7 +33,6 @@ public class Entity : MonoBehaviour
             Vector2 knockBack = transform.position - collision.transform.position;
             knockBack.Normalize();
             knockBack *= knockBackForce;
-            Debug.Log(rb);
             rb.AddForce(knockBack);
         }
     }
