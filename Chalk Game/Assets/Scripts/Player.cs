@@ -27,16 +27,25 @@ public class Player : Entity
 
     //Checks if player is next to wall and running against wall.
     //Returns 1 if clinging to right, -1 if left, 0 if not at all
-    public BoxCollider2D leftWallBox;
-    public BoxCollider2D rightWallBox;
+    public BoxCollider2D wallBox;
     private int wallCling()
     {
-        
-        if (rightWallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") > 0.75f)
+
+        if (wallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") > 0.75f)
+        {
+            clinging = true;
             return -1;
-        else if (leftWallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") < -0.75f)
+        }
+        else if (wallBox.IsTouchingLayers(mask) && Input.GetAxisRaw("Horizontal") < -0.75f)
+        {
+            clinging = true;
             return 1;
-        else return 0;
+        }
+        else
+        {
+            clinging = false;
+            return 0;
+        }
     }
     #endregion
 
@@ -44,9 +53,16 @@ public class Player : Entity
     public float jumpForce = 1f;
     public float maxSpeed = 10f;
     public Vector2 wallJumpForce = new Vector2(-1, 0.5f);
+    public Animator anim;
     #endregion
     #region Private Variables
-    private Rigidbody2D rb = new Rigidbody2D();
+    //Animation conditions
+    private bool jumping;
+    private bool running;
+    private bool clinging;
+    private bool attacking;
+
+    private Rigidbody2D rb;
     LayerMask mask;
     #endregion
 
@@ -73,22 +89,31 @@ public class Player : Entity
                 velocity = new Vector2(0, 0);
                 wallJump = wallJumpForce;
                 jump = jumpForce;
+                jumping = true;
             }
             else if(isGrounded)
             {
                 velocity = new Vector2(velocity.x, 0);
                 jump = jumpForce;
+                jumping = true;
             }
-
         }
         //Horizontal
         float horizontalMove = isGrounded ? speed * Input.GetAxisRaw("Horizontal") * Time.deltaTime : (speed * Input.GetAxisRaw("Horizontal") * Time.deltaTime)/3;
+        if (horizontalMove != 0)
+            facingRight = horizontalMove > 0 ? true : false;
+        anim.SetFloat("running", Mathf.Abs(horizontalMove));
+
         //Move
         rb.AddForce(new Vector2(horizontalMove + (wallJump.x * wallCling()), jump * wallJump.y));
         //Clamp speed to maxSpeed
         velocity = new Vector2(Mathf.Clamp(velocity.x, -maxSpeed, maxSpeed), velocity.y);
         #endregion
+        #region Attack
+        if (Input.GetButtonDown("Fire1"))
+            anim.SetBool("attacking", true);
 
+        #endregion
     }
 
 
