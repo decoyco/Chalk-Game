@@ -52,6 +52,7 @@ public class Player : Entity
     #region Public Variables
     public float jumpForce = 1f;
     public float maxSpeed = 10f;
+    public float attackLength = 1f;
     public Vector2 wallJumpForce = new Vector2(-1, 0.5f);
     public Animator anim;
     #endregion
@@ -62,15 +63,14 @@ public class Player : Entity
     private bool clinging;
     private bool attacking;
 
-    private Rigidbody2D rb;
-    LayerMask mask;
+    private LayerMask mask;
+    private float attackCooldown;
     #endregion
 
     #region Initialization
     private void Start()
     {
         init();
-        rb = GetComponent<Rigidbody2D>();
         mask = LayerMask.GetMask("Ground");
     }
     #endregion
@@ -100,21 +100,29 @@ public class Player : Entity
         }
         //Horizontal
         float horizontalMove = isGrounded ? speed * Input.GetAxisRaw("Horizontal") * Time.deltaTime : (speed * Input.GetAxisRaw("Horizontal") * Time.deltaTime)/3;
-        if (horizontalMove != 0)
-            facingRight = horizontalMove > 0 ? true : false;
-        anim.SetFloat("running", Mathf.Abs(horizontalMove));
-
         //Move
         rb.AddForce(new Vector2(horizontalMove + (wallJump.x * wallCling()), jump * wallJump.y));
         //Clamp speed to maxSpeed
         velocity = new Vector2(Mathf.Clamp(velocity.x, -maxSpeed, maxSpeed), velocity.y);
         #endregion
         #region Attack
-        if (Input.GetButtonDown("Fire1"))
-            anim.SetBool("attacking", true);
+        if (Input.GetButtonDown("Fire1") && !attacking && attackCooldown <= Time.time)
+        {
+            attackCooldown = Time.time + attackLength;
+            attacking = true;
+        }
+        else if(attackCooldown <= Time.time)
+        {
+            attacking = false;
+        }
+
+        #endregion
+        #region Animation
+        anim.SetBool("attacking", attacking);
+        if (horizontalMove != 0)
+            facingRight = horizontalMove > 0 ? true : false;
+        anim.SetFloat("running", Mathf.Abs(horizontalMove));
 
         #endregion
     }
-
-
 }
