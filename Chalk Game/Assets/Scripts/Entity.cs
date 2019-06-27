@@ -12,6 +12,8 @@ public class Entity : MonoBehaviour
     private bool face;
 
     protected Rigidbody2D rb;
+    protected CharacterController2D controller;
+
     //Initialization function, run in Start()
     private void Start()
     {
@@ -19,6 +21,7 @@ public class Entity : MonoBehaviour
     }
     protected void init()
     {
+        controller = GetComponent<CharacterController2D>();
         rb = GetComponent<Rigidbody2D>();
         HP = maxHP;
     }
@@ -37,7 +40,7 @@ public class Entity : MonoBehaviour
         }
     }
 
-    protected bool facingRight
+    public bool facingRight
     {
         get { return face; }
         set
